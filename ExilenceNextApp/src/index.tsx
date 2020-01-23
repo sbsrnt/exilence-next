@@ -37,6 +37,7 @@ import { SignalrStore } from './store/signalrStore';
 import { UiStateStore } from './store/uiStateStore';
 import { UpdateStore } from './store/updateStore';
 import { MigrationStore } from './store/migrationStore';
+import 'intro.js/introjs.css';
 
 export const appName = 'Exilence Next';
 export let visitor: Visitor | undefined = undefined;
