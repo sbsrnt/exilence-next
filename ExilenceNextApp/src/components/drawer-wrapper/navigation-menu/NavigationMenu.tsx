@@ -8,15 +8,10 @@ import { observer } from 'mobx-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router';
-import { Link } from 'react-router-dom';
 import { WindowUtils } from '../../../utils/window.utils';
-import DiscordLogo from '../../../assets/img/discord-wordmark-white.svg';
-import PatreonLogo from '../../../assets/img/patreon-white.png';
 import { resizeHandleContainerHeight, toolbarHeight } from '../../header/Header';
 import { drawerWidth } from '../DrawerWrapper';
 
-const discordLogoHeight = 25;
-const patreonLogoHeight = 50;
 const useStyles = makeStyles((theme: Theme) => ({
   drawer: {
     width: drawerWidth,
@@ -34,25 +29,19 @@ const useStyles = makeStyles((theme: Theme) => ({
     alignItems: 'center',
     padding: theme.spacing(0, 1),
     justifyContent: 'flex-end'
-  },
-  discordLogo: {
-    height: discordLogoHeight,
-    maxWidth: '100%'
-  },
-  patreonLogo: {
-    height: patreonLogoHeight,
-    maxWidth: '100%'
   }
 }));
 
 interface NavigationMenuProps {
   open: boolean;
   toggleSidenav: () => void;
+  handleRedirect: (path: string) => void;
 }
 
 const NavigationMenu: React.FC<NavigationMenuProps> = ({
   open,
-  toggleSidenav
+  toggleSidenav,
+  handleRedirect
 }: NavigationMenuProps) => {
   const classes = useStyles();
   const theme = useTheme();
@@ -84,9 +73,8 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
         <ListItem
           button
           key="net-worth"
-          component={Link}
-          to="/net-worth"
           selected={location.pathname === '/net-worth'}
+          onClick={() => handleRedirect('/net-worth')}
         >
           <ListItemIcon>
             <AttachMoneyIcon />
@@ -96,9 +84,8 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
         <ListItem
           button
           key="settings"
-          component={Link}
-          to="/settings"
           selected={location.pathname === '/settings'}
+          onClick={() => handleRedirect('/settings')}
         >
           <ListItemIcon>
             <SettingsIcon />
@@ -106,33 +93,6 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
           <ListItemText primary={t('title.settings')} />
         </ListItem>
       </List>
-
-      <Box display="flex" justifyContent="center">
-        <Box position="absolute" bottom={2} width="100%" p={2}>
-          <Grid container spacing={1}>
-            <Grid item xs={6}>
-              <a
-                href="https://discord.gg/yxuBrPY"
-                onClick={e => WindowUtils.openLink(e)}
-              >
-                <Box display="flex" alignItems="center" height={1}>
-                  <img className={classes.discordLogo} src={DiscordLogo} />
-                </Box>
-              </a>
-            </Grid>
-            <Grid item xs={6}>
-              <a
-                href="https://patreon.com/exilence"
-                onClick={e => WindowUtils.openLink(e)}
-              >
-                <Box display="flex" alignItems="center" height={1}>
-                  <img className={classes.patreonLogo} src={PatreonLogo} />
-                </Box>
-              </a>
-            </Grid>
-          </Grid>
-        </Box>
-      </Box>
     </Drawer>
   );
 };

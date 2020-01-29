@@ -1,4 +1,4 @@
-import { makeStyles, Theme } from '@material-ui/core/styles';
+import { makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import { observer } from 'mobx-react';
 import React from 'react';
@@ -7,16 +7,19 @@ import { resizeHandleContainerHeight, toolbarHeight } from '../header/Header';
 import { innerToolbarHeight } from '../toolbar/Toolbar';
 import GroupOverviewContainer from './group-overview/GroupOverviewContainer';
 import NavigationMenuContainer from './navigation-menu/NavigationMenuContainer';
+import { Box } from '@material-ui/core';
+import { background } from '../../assets/themes/exilence-theme';
 
 export const drawerWidth = 300;
 
 const useStyles = makeStyles((theme: Theme) => ({
   content: {
-    height: `calc(100% - ${toolbarHeight}px)`,
+    height: `100%`,
+    overflow: 'scroll',
     padding: `calc(${toolbarHeight}px + ${innerToolbarHeight}px + ${resizeHandleContainerHeight}px + ${theme.spacing(
-      2
+      1
     )}px) 
-    ${theme.spacing(2)}px ${theme.spacing(2)}px ${theme.spacing(2)}px`,
+    ${theme.spacing(1)}px ${theme.spacing(1)}px ${theme.spacing(1)}px`,
     flexGrow: 1,
     transition: theme.transitions.create('margin', {
       easing: theme.transitions.easing.sharp,
@@ -35,6 +38,9 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   fromLeft: {
     marginLeft: drawerWidth
+  },
+  windowBottomBorder: {
+    background: background.darker
   }
 }));
 
@@ -50,6 +56,7 @@ const DrawerWrapper: React.FC<DrawerWrapperProps> = ({
 }: DrawerWrapperProps) => {
   const classes = useStyles();
   const location = useLocation();
+  const theme = useTheme();
 
   const atLoginRoute = () => {
     return location.pathname === '/login';
@@ -73,6 +80,16 @@ const DrawerWrapper: React.FC<DrawerWrapperProps> = ({
           })}
         >
           {children}
+          <Box
+            className={classes.windowBottomBorder}
+            display="block"
+            width="1"
+            height={theme.spacing(2)}
+            zIndex="100"
+            bottom="0"
+            left="0"
+            position="fixed"
+          ></Box>
         </main>
       )}
     </>

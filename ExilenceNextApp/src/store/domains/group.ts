@@ -1,14 +1,21 @@
+import { action, computed, observable } from 'mobx';
+import moment from 'moment';
 import uuid from 'uuid';
-import { IApiGroup } from '../../interfaces/api/api-group.interface';
 import { IApiConnection } from '../../interfaces/api/api-connection.interface';
-import { computed, observable, action } from 'mobx';
-import { SnapshotUtils } from '../../utils/snapshot.utils';
-import { stores } from '../..';
+import { IApiGroup } from '../../interfaces/api/api-group.interface';
+import {
+  calculateNetWorth,
+  filterItems,
+  formatSnapshotsForChart,
+  getItemCount,
+  getValueForSnapshotsTabs
+} from '../../utils/snapshot.utils';
+import { IGroupChartSeries } from '../../interfaces/group-chart-series.interface';
 
 export class Group implements IApiGroup {
   uuid: string = uuid.v4();
   name: string = '';
-  created: Date = new Date();
+  created: Date = moment.utc().toDate();
   @observable connections: IApiConnection[] = [];
   @observable activeAccounts: string[] = [];
 
@@ -16,13 +23,25 @@ export class Group implements IApiGroup {
     Object.assign(this, obj);
   }
 
-  snapshotFlattener(onlyLatest?: boolean) {
+  snapshotFlattener(onlyLatest?: boolean, excludeSnapshotId?: string) {
     return this.connections
       .flatMap(c => c.account)
       .filter(a => this.activeAccounts.includes(a.uuid))
       .flatMap(a => {
-        const filter = a.profiles.filter(ap => ap.active).flatMap(p => p.snapshots);
-        return onlyLatest && filter.length > 0 ? [filter[0]] : filter;
+        let profileSnapshots = a.profiles
+          .filter(ap => ap.active)
+          .flatMap(p => p.snapshots)
+          .sort((a, b) => (moment(a.created).isBefore(b.created) ? 1 : -1));
+
+        if (excludeSnapshotId) {
+          profileSnapshots = profileSnapshots.filter(
+            s => s.uuid !== excludeSnapshotId
+          );
+        }
+
+        return onlyLatest && profileSnapshots.length > 0
+          ? [profileSnapshots[0]]
+          : profileSnapshots;
       });
   }
 
@@ -39,6 +58,63 @@ export class Group implements IApiGroup {
   }
 
   @computed
+  get lastSnapshotChange() {
+    if (this.groupSnapshots.length < 2) {
+      return 0;
+    }
+
+    const latestSnapshot = this.latestGroupSnapshots.sort((a, b) =>
+      moment(a.created).isBefore(b.created) ? 1 : -1
+    )[0];
+
+    const previousNetworth = getValueForSnapshotsTabs(
+      this.latestGroupSnapshotsExceptLast(latestSnapshot.uuid)
+    );
+
+    const newNetworth = getValueForSnapshotsTabs(this.latestGroupSnapshots);
+
+    return newNetworth - previousNetworth;
+  }
+
+  @computed
+  get timeSinceLastSnapshot() {
+    if (this.groupSnapshots.length === 0) {
+      return undefined;
+    }
+    return moment(this.groupSnapshots[0].created).fromNow();
+  }
+
+  @computed
+  get income() {
+    let incomeForGroup = 0;
+    const hours = 1;
+    const hoursAgo = moment()
+      .utc()
+      .subtract(hours, 'hours');
+
+    this.connections.forEach((c: IApiConnection) => {
+      const activeProfile = c.account.profiles.find(p => p.active);
+      const snapshots = activeProfile?.snapshots.filter(s =>
+        moment(s.created)
+          .utc()
+          .isAfter(hoursAgo)
+      );
+
+      if (snapshots && snapshots.length > 1) {
+        const lastSnapshot = snapshots[0];
+        const firstSnapshot = snapshots[snapshots.length - 1];
+        const incomePerHour =
+          (calculateNetWorth([lastSnapshot]) -
+            calculateNetWorth([firstSnapshot])) /
+          hours;
+        incomeForGroup += incomePerHour;
+      }
+    });
+
+    return incomeForGroup;
+  }
+
+  @computed
   get groupSnapshots() {
     return this.snapshotFlattener();
   }
@@ -48,12 +124,16 @@ export class Group implements IApiGroup {
     return this.snapshotFlattener(true);
   }
 
+  latestGroupSnapshotsExceptLast(excludeSnapshotId: string) {
+    return this.snapshotFlattener(true, excludeSnapshotId);
+  }
+
   @computed
   get items() {
     if (this.latestGroupSnapshots.length === 0) {
       return [];
     }
-    return SnapshotUtils.filterItems(this.latestGroupSnapshots);
+    return filterItems(this.latestGroupSnapshots);
   }
 
   @computed
@@ -61,7 +141,7 @@ export class Group implements IApiGroup {
     if (this.latestGroupSnapshots.length === 0) {
       return 0;
     }
-    return SnapshotUtils.calculateNetWorth(this.latestGroupSnapshots);
+    return calculateNetWorth(this.latestGroupSnapshots);
   }
 
   @computed
@@ -69,15 +149,28 @@ export class Group implements IApiGroup {
     if (this.latestGroupSnapshots.length === 0) {
       return 0;
     }
-    return SnapshotUtils.getItemCount(this.latestGroupSnapshots);
+    return getItemCount(this.latestGroupSnapshots);
   }
-  
+
   @computed
   get chartData() {
-    if (this.groupSnapshots.length === 0) {
-      return [];
-    }
-    return SnapshotUtils.formatSnapshotsForChart(this.groupSnapshots);
+    let groupChartSeries: IGroupChartSeries = {
+      connections: []
+    };
+
+    this.connections.forEach((c: IApiConnection) => {
+      const activeProfile = c.account.profiles.find(p => p.active);
+
+      if (activeProfile?.snapshots && activeProfile.snapshots.length > 0) {
+        const chartSeries = formatSnapshotsForChart(activeProfile?.snapshots);
+        groupChartSeries.connections.push({
+          seriesName: c.account.name,
+          series: chartSeries
+        });
+      }
+    });
+
+    return groupChartSeries;
   }
 
   @action

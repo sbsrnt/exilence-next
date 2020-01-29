@@ -1,6 +1,53 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.2.5] - 2020-01-29
+##### Changed
+- Changed the position and behaviour of the scrollbar
+##### Fixed
+- Fixed a bug where the app would crash when switching profiles
+- Fixed a bug where the app would crash when removing all snapshots
+
+## [0.2.4] - 2020-01-28
+##### Added
+- Added a setting for scaling the user interface
+- Added a new card for income (gain per hour)
+    - Currently based on the past 1 hour, but will be configurable later on
+- Added a label to the net worth card that displays the diff for the last two snapshots
+- Added a label to the snapshot card that displays the time since the last snapshot occured
+- Added group support for the chart
+    - Now displays one line per player
+- Added styling for tooltips
+- Now displays a text when an update is ready
+    - Ability to update manually from within the app
+##### Changed
+- Changed the look and feel of the cards in the top of the net worth page
+- Changed order of the sections in the toolbar
+- Changed how the scroll behaves on the net worth page, to allow for more control
+- Changed how the price treshold setting works
+    - It now updates the actual value on the snapshot, which means you have to wait for a new snapshot for changes
+##### Fixed
+- Fixed a bug where the font was not properly set for some users
+
+## [0.2.3] - 2020-01-26
+##### Removed
+- Removed a forgotten console log
+
+## [0.2.2] - 2020-01-26
+##### Added
+- Added a new chart widget (replaces the smaller one)
+- Adding spacing to the "Total" column in the item table
+##### Changed
+- Changed default state for navigation menu
+- Changed position for Discord and Patreon logos, to be more visible
+##### Removed
+- Removed the smaller chart widget
+##### Fixed
+- Fixed a bug where some users would not be connected to our servers properly
+    - Caused by multiple connections on the same client
+- Fixed a bug where redirects in the app would only work the first time
+- Fixed a bug where dropdown menus would linger after signing out
+
 ## [0.2.1] - 2020-01-23
 ##### Added
 - Added setting for auto snapshotting with custom intervals

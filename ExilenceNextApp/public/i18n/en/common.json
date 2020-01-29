@@ -33,7 +33,10 @@
     "pricing_settings": "Pricing settings",
     "create_group_dialog_title": "Create new group",
     "join_group_dialog_title": "Join existing group",
-    "snapshot_settings": "Snapshot settings"
+    "snapshot_settings": "Snapshot settings",
+    "snapshot_history_chart": "Snapshot history",
+    "ui_settings": "Interface",
+    "general": "General"
   },
   "label": {
     "required": "Required",
@@ -56,6 +59,7 @@
     "graphs": "Graphs",
     "total_value": "Net worth",
     "total_items": "Items",
+    "total_income": "Income",
     "total_snapshots": "Snapshots",
     "session_id_link": "How to find your session id",
     "sign_out": "Sign out",
@@ -73,9 +77,13 @@
     "toggle_visibility_icon_title": "Show/hide",
     "net_worth_export": "Export data",
     "these_terms_inline": "these terms",
-    "update_available": "Version {{version}} available",
+    "update_available": "Update available, ",
+    "click": "click",
+    "here": "here",
+    "to_update_now": "to update now!",
     "prices_fetched_from": "Prices fetched from ",
     "not_available": "N/A",
+    "hour_suffix": "/ h",
     "low_confidence_pricing": "Activate low confidence pricing",
     "price_treshold": "Select price treshold",
     "requires_snapshot_info": "* = requires a new snapshot to take effect",
@@ -86,7 +94,8 @@
     "no_snapshots_title": "No snapshots found for selection",
     "snapshot_length_requirement_text": "The chart will be displayed when there are at least 10 snapshots",
     "auto_snapshotting": "Activate auto snapshotting",
-    "auto_snapshot_interval": "Set auto snapshot interval"
+    "auto_snapshot_interval": "Set auto snapshot interval",
+    "ui_scale": "Interface scale (%)"
   },
   "value": {
     "none": "None",
@@ -99,7 +108,8 @@
     "low_confidence_pricing": "Includes prices with less than 10 listings",
     "price_treshold": "Sets the cutoff for including items",
     "auto_snapshotting": "Handles snapshotting for you at set intervals",
-    "auto_snapshot_interval": "Sets the interval for auto snapshotting"
+    "auto_snapshot_interval": "Sets the interval for auto snapshotting",
+    "ui_scale": "Sets the UI scale"
   },
   "link": {
     "restart_now": "Restart now"

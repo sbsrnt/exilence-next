@@ -7,13 +7,16 @@ import { authService } from './../services/auth.service';
 import { Notification } from './domains/notification';
 import uuid from 'uuid';
 import { AxiosError } from 'axios';
+import { stores } from '..';
+import { fromStream } from 'mobx-utils';
+import { electronService } from '../services/electron.service';
 
 export type GroupDialogType = 'create' | 'join' | undefined;
 
 export class UiStateStore {
   @observable @persist userId: string = uuid.v4();
   @observable sessIdCookie: ICookie | undefined = undefined;
-  @persist @observable sidenavOpen: boolean = false;
+  @persist @observable sidenavOpen: boolean = true;
   @observable validated: boolean = false;
   @observable isSubmitting: boolean = false;
   @observable itemTablePageIndex: number = 0;
@@ -98,7 +101,9 @@ export class UiStateStore {
 
   @action
   redirect(path: string) {
-    this.redirectedTo = undefined;
+    if (path === '/login') {
+      fromStream(stores.signalrHub.stopConnection());
+    }
     this.redirectedTo = path;
   }
 

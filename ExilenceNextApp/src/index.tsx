@@ -1,4 +1,4 @@
-/// <reference path="./react-vis.d.ts"/> 
+/// <reference path="./react-vis.d.ts"/>
 
 import { CssBaseline } from '@material-ui/core';
 import { responsiveFontSizes } from '@material-ui/core/styles';
@@ -8,7 +8,7 @@ import { configure } from 'mobx';
 import { enableLogging } from 'mobx-logger';
 import { create } from 'mobx-persist';
 import { Provider } from 'mobx-react';
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import ReactDOM, { render } from 'react-dom';
 import { HashRouter as Router, Redirect, Route } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.min.css';
@@ -38,15 +38,25 @@ import { UiStateStore } from './store/uiStateStore';
 import { UpdateStore } from './store/updateStore';
 import { MigrationStore } from './store/migrationStore';
 import 'intro.js/introjs.css';
+import HighchartsTheme from './components/highcharts-theme/HighchartsTheme';
+import moment from 'moment';
+import { electronService } from './services/electron.service';
 
 export const appName = 'Exilence Next';
 export let visitor: Visitor | undefined = undefined;
 
 initSentry();
-enableLogging({ action: true, reaction: false, transaction: false, compute: false });
+enableLogging({
+  action: true,
+  reaction: false,
+  transaction: false,
+  compute: false
+});
 configureI18n();
 
 configure({ enforceActions: 'observed' });
+
+moment.locale(electronService.remote.app.getLocale());
 
 const theme = responsiveFontSizes(exilenceTheme());
 
@@ -98,6 +108,7 @@ const app = (
       <Provider {...stores}>
         <Suspense fallback={null}>
           <Router>
+            <HighchartsTheme />
             <CssBaseline />
             <GlobalStyles />
             <ToastWrapper />
@@ -140,6 +151,7 @@ const renderApp = () => {
     hydrate('league', leagueStore),
     hydrate('setting', settingStore)
   ]).then(() => {
+    settingStore.setUiScale(settingStore.uiScale);
     visitor = ua(AppConfig.trackingId, uiStateStore.userId);
     ReactDOM.render(app, document.getElementById('root'));
   });
