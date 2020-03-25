@@ -1,15 +1,22 @@
 import { action, observable } from 'mobx';
 import { electronService } from '../services/electron.service';
 import { RootStore } from './rootStore.js';
+import { Subject } from 'rxjs';
+import { PoELogMonitorArea } from '../interfaces/poe-log-monitor/poe-log-monitor-area.interface';
+import { PoELogMonitorInstanceServer } from '../interfaces/poe-log-monitor/poe-log-monitor-instance-server.interface';
 
 export class LogStore {
-  @observable event: any = null;
+  @observable areaEvent: Subject<PoELogMonitorArea> = new Subject<
+    PoELogMonitorArea
+  >();
+  @observable instanceServerEvent: Subject<
+    PoELogMonitorInstanceServer
+  > = new Subject<PoELogMonitorInstanceServer>();
+
   @observable running: boolean = false;
 
   constructor(private rootStore: RootStore) {
     electronService.ipcRenderer.on('log-event', (event: any, args: any) => {
-      console.log('args: ', args);
-
       switch (args.event) {
         case 'start':
           this.running = true;
@@ -24,6 +31,12 @@ export class LogStore {
             'log_monitor_stopped',
             'success'
           );
+          break;
+        case 'area':
+          this.areaEvent.next(args.data);
+          break;
+        case 'instanceServer':
+          this.instanceServerEvent.next(args.data);
           break;
       }
     });
