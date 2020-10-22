@@ -5,6 +5,12 @@ const isDev = require('electron-is-dev');
 const sentry = require('@sentry/electron');
 const windowStateKeeper = require('electron-window-state');
 const {
+  default: installExtension,
+  REACT_DEVELOPER_TOOLS,
+} = require('electron-devtools-installer');
+const contextMenu = require('electron-context-menu');
+
+const {
   flashFrame: { createFlashFrame },
   logMonitor: { createLogMonitor },
   autoUpdater: { checkForUpdates, createAutoUpdater },
@@ -91,6 +97,18 @@ function createWindow() {
     updateAvailable,
     isQuittingCallback: (status) => (isQuitting = status),
   };
+
+  if(isDev) {
+    // Provide Inspect Element option on right click
+    contextMenu();
+
+    // Devtools
+    [REACT_DEVELOPER_TOOLS].forEach((extension) =>
+      installExtension(extension)
+        .then((name) => console.log(`Added Extension: ${name}`))
+        .catch((err) => console.log('An error occurred: ', err))
+    );
+  }
 }
 
 /**
